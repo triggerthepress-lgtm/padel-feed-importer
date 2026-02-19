@@ -17,7 +17,12 @@ HEADERS = {
     "Prefer": "resolution=merge-duplicates"
 }
 
-def supabase_upsert(table: str, rows: list, on_conflict: str = None):
+def supabase_upsert(table: str, rows: list, on_conflict: str = None, prefer: str = "merge"):
+    """
+    prefer:
+      - "merge"  -> upsert / merge duplicates (good for products/offers/raw)
+      - "ignore" -> ignore duplicates (good for review_queue with unique constraint)
+    """
     if not rows:
         return
 
@@ -26,10 +31,19 @@ def supabase_upsert(table: str, rows: list, on_conflict: str = None):
     if on_conflict:
         params["on_conflict"] = on_conflict
 
-    r = requests.post(url, headers=HEADERS, params=params, data=json.dumps(rows))
+    headers = dict(HEADERS)
+
+    if prefer == "ignore":
+        headers["Prefer"] = "resolution=ignore-duplicates"
+    else:
+        headers["Prefer"] = "resolution=merge-duplicates"
+
+    r = requests.post(url, headers=headers, params=params, data=json.dumps(rows))
+
     if r.status_code >= 300:
         raise RuntimeError(f"Supabase upsert failed {table}: {r.status_code} {r.text}")
-
+if r.status_code >= 300:
+    raise RuntimeError(f"Supabase upsert failed {table}: {r.status_code} {r.text}")
 def supabase_select_one(table: str, query: str):
     url = f"{SUPABASE_URL}/rest/v1/{table}?{query}&limit=1"
     r = requests.get(url, headers=HEADERS)
