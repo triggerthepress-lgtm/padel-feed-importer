@@ -14,6 +14,7 @@ HEADERS = {
     "apikey": SUPABASE_SERVICE_KEY,
     "Authorization": f"Bearer {SUPABASE_SERVICE_KEY}",
     "Content-Type": "application/json",
+    "Prefer": "resolution=merge-duplicates"
 }
 
 def supabase_upsert(table: str, rows: list, on_conflict: str = None):
