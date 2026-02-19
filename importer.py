@@ -42,8 +42,6 @@ def supabase_upsert(table: str, rows: list, on_conflict: str = None, prefer: str
 
     if r.status_code >= 300:
         raise RuntimeError(f"Supabase upsert failed {table}: {r.status_code} {r.text}")
-if r.status_code >= 300:
-    raise RuntimeError(f"Supabase upsert failed {table}: {r.status_code} {r.text}")
 def supabase_select_one(table: str, query: str):
     url = f"{SUPABASE_URL}/rest/v1/{table}?{query}&limit=1"
     r = requests.get(url, headers=HEADERS)
